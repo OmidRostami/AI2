@@ -9,20 +9,19 @@
   <script>
     const el = document.getElementById('status');
 
-    async function check() {
-      try {
-        const ctrl = new AbortController();
-        setTimeout(() => ctrl.abort(), 3000);
-        await fetch(location.href + '?t=' + Date.now(), {
-          cache: 'no-store',
-          signal: ctrl.signal
-        });
-        el.textContent = 'connected';
-        el.style.color = 'green';
-      } catch {
-        el.textContent = 'disconnected';
-        el.style.color = 'red';
-      }
+    function check() {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', location.href + '?t=' + Date.now(), true);
+      xhr.timeout = 3000;
+      xhr.onload  = () => set(true);
+      xhr.onerror = () => set(false);
+      xhr.ontimeout = () => set(false);
+      xhr.send();
+    }
+
+    function set(on) {
+      el.textContent = on ? 'connected' : 'disconnected';
+      el.style.color = on ? 'green' : 'red';
     }
 
     check();
