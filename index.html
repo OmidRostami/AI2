@@ -5,19 +5,28 @@
   <title>Internet Check</title>
 </head>
 <body>
-  <h1 id="status"></h1>
+  <h1 id="status">checking...</h1>
   <script>
     const el = document.getElementById('status');
 
-    function set(on) {
-      el.textContent = on ? 'connected' : 'disconnected';
-      el.style.color = on ? 'green' : 'red';
+    async function check() {
+      try {
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 3000);
+        await fetch(location.href + '?t=' + Date.now(), {
+          cache: 'no-store',
+          signal: ctrl.signal
+        });
+        el.textContent = 'connected';
+        el.style.color = 'green';
+      } catch {
+        el.textContent = 'disconnected';
+        el.style.color = 'red';
+      }
     }
 
-    window.addEventListener('online',  () => set(true));
-    window.addEventListener('offline', () => set(false));
-
-    set(navigator.onLine);
+    check();
+    setInterval(check, 3000);
   </script>
 </body>
 </html>
